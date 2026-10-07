@@ -78,7 +78,28 @@ node --test test/*.test.js
 
 ---
 
+## ⚠️ Disclaimer Medico e Limitazione di Responsabilità (Medical Disclaimer)
+
+> **AVVISO IMPORTANTE**:
+> 
+> 1. **Finalità Esclusivamente Didattica e Ludica**:  
+>    **LeggoFacile** è un software sperimentale open-source concepito unicamente come strumento ludico-educativo, di supporto allo studio e di allenamento alla lettura autonoma.
+>
+> 2. **Assenza di Valenza Medica o Diagnostica**:  
+>    Gli autori e i contributori del progetto **NON sono medici, logopedisti, psicologi né operatori sanitari**.  
+>    Nessuna funzionalità presente nell'applicazione (inclusi l'algoritmo di decomposizione sillabica, le statistiche di accuratezza, l'indice degli errori fonetici o i report scaricabili) costituisce, sostituisce o intende sostituire:
+>    - un parere medico, clinico o sanitario;
+>    - una diagnosi di Disturbi Specifici dell'Apprendimento (DSA), ADHD o altre condizioni neuroevolutive;
+>    - un piano di riabilitazione o trattamento logopedico professionale.
+>
+> 3. **Esonero Totale da Responsabilità**:  
+>    L'applicazione viene fornita «così com'è» (*as is*), a titolo gratuito e senza garanzie di alcun tipo. Gli autori e i contributori declinano qualsiasi responsabilità diretta o indiretta per eventuali danni, pretese, incomprensioni, ritardi diagnostici o conseguenze derivanti dall'uso o dall'impossibilità di utilizzo del software o delle metriche da esso generate.  
+>    Per qualsiasi dubbio relativo all'apprendimento, allo sviluppo del linguaggio o a sospetti DSA, è sempre indispensabile rivolgersi a medici specialisti, neuropsichiatri infantili e logopedisti abilitati.
+
+---
+
 ## 📄 Licenza
 
 Rilasciato sotto licenza [MIT](./LICENSE).  
 Sviluppato con passione per l'inclusione didattica dalla community **Open-EduKit**.
+
