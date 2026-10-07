@@ -78,7 +78,27 @@ node --test test/*.test.js
 
 ---
 
+## 🔒 Privacy, Trasparenza Dati & Funzionamento Offline
+
+LeggoFacile adotta un'architettura rigorosamente orientata alla **massima tutela della privacy dei minori**:
+
+### 1. Cosa succede alle foto caricate (OCR)?
+- **Zero Cloud**: le immagini caricate (da fotocamera o galleria) **non lasciano mai il dispositivo**.
+- L'estrazione del testo dai libri avviene interamente in memoria locale (RAM) tramite **Tesseract.js** (motore OCR compilato in WebAssembly che opera in un Web Worker isolato del browser).
+- Nessun server backend, nessun database remoto e nessun archivio cloud: una volta estratto il testo o chiusa la sessione, l'immagine svanisce dalla memoria temporanea.
+
+### 2. Dati di Profilo e Statistiche
+- Tutti i dati (nomi dei profili, conteggio delle stelle, album dei trofei, storico degli errori fonetici) risiedono unicamente nel `localStorage` del browser sul dispositivo dell'utente.
+- **Zero Cookie di profilazione o tracciamento**: nessun pixel pubblicitario, né Google Analytics o telemetria di terze parti.
+
+### 3. Funzionamento Offline & Riconoscimento Vocale
+- **Architettura Offline-First**: grazie al Service Worker integrato, una volta caricata l'applicazione, l'interfaccia, i font, la logica didattica e il motore di sillabazione funzionano senza connessione a Internet.
+- **Microfono e Web Speech API**: la sintesi vocale (TTS audio) e il riconoscimento vocale sfruttano i motori nativi forniti dal browser o dal sistema operativo (on-device su Apple/iOS e Android con dizionari offline; su alcuni browser Chromium su desktop la trascrizione vocale può richiedere connettività di rete del browser).
+
+---
+
 ## ⚠️ Disclaimer Medico e Limitazione di Responsabilità (Medical Disclaimer)
+
 
 > **AVVISO IMPORTANTE**:
 > 
