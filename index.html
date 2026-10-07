@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#FAF7EE">
+  <title>LeggoFacile - Lettura e Sillabe DSA & ADHD</title>
+
+  <!-- PWA Manifest & App Icons -->
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" type="image/svg+xml" href="./icons/icon.svg">
+  <link rel="apple-touch-icon" href="./icons/icon.svg">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Fonts: Lexend and Fredoka from Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Lexend:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- OpenDyslexic Web Font CDN -->
+  <link rel="stylesheet" href="https://fonts.cdnfonts.com/css/open-dyslexic">
+
+  <!-- In-browser OCR via Tesseract.js (ita) -->
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
+  <!-- Celebratory confetti for milestones -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <style>
+    :root {
+      --bg-cream: #FAF7EE;
+      --card-white: #FFFFFF;
+      --text-main: #242E38;
+      --app-font: 'Lexend', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-cream);
+      color: var(--text-main);
+      font-family: var(--app-font);
+      letter-spacing: 0.06em;
+      line-height: 1.75;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    body.font-lexend {
+      --app-font: 'Lexend', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    body.font-opendyslexic {
+      --app-font: 'Open-Dyslexic', 'OpenDyslexic', 'Lexend', sans-serif;
+      letter-spacing: 0.08em;
+      line-height: 1.9;
+    }
+    body.font-fredoka {
+      --app-font: 'Fredoka', cursive, 'Lexend', sans-serif;
+      letter-spacing: 0.05em;
+    }
+
+    /* Enforce app-wide font inheritance so no element escapes the active font */
+    button, input, select, textarea, h1, h2, h3, h4, p, span, div, a {
+      font-family: inherit;
+    }
+
+    /* Distinct high-contrast pastel pill badges for syllable separation */
+    .syl-pill-0 {
+      color: #1d4ed8;
+      background: #eff6ff;
+      border: 3px solid #93c5fd;
+    }
+    .syl-pill-1 {
+      color: #c2410c;
+      background: #fff7ed;
+      border: 3px solid #fdba74;
+    }
+    .syl-pill-2 {
+      color: #15803d;
+      background: #f0fdf4;
+      border: 3px solid #86efac;
+    }
+    .syl-pill-3 {
+      color: #7e22ce;
+      background: #faf5ff;
+      border: 3px solid #d8b4fe;
+    }
+
+    .bubble-btn {
+      transition: all 0.14s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 4px 0 rgba(0,0,0,0.10);
+    }
+    .bubble-btn:active {
+      transform: translateY(3px);
+      box-shadow: 0 1px 0 rgba(0,0,0,0.10);
+    }
+
+    /* Accessible focus indicator for keyboard/switch navigation */
+    :focus-visible {
+      outline: 3px solid #f59e0b !important;
+      outline-offset: 3px !important;
+    }
+
+    /* Playful wobble animation on mistake */
+    @keyframes fartWiggle {
+      0%, 100% { transform: rotate(0deg) scale(1); }
+      20% { transform: rotate(-8deg) scale(1.04); }
+      40% { transform: rotate(8deg) scale(1.04); }
+      60% { transform: rotate(-5deg) scale(1.02); }
+      80% { transform: rotate(5deg) scale(1.02); }
+    }
+    .wobble-anim {
+      animation: fartWiggle 0.45s ease-in-out;
+    }
+
+    /* Live microphone pulsation */
+    @keyframes pulseRing {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      50% { transform: scale(1.2); opacity: 0.35; }
+      100% { transform: scale(0.95); opacity: 0.8; }
+    }
+    .mic-live-pulse {
+      animation: pulseRing 1.3s infinite ease-in-out;
+    }
+
+    /* Horizontal Reading Ribbon Scroll Mask */
+    .ribbon-container {
+      mask-image: linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%);
+      -webkit-mask-image: linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%);
+    }
+
+    /* Hide scrollbar for clean carousel look */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    /* Motion accessibility */
+    @media (prefers-reduced-motion: reduce) {
+      *, ::before, ::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+      .mic-live-pulse, .wobble-anim {
+        animation: none !important;
+      }
+    }
+
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #printArea, #printArea * {
+        visibility: visible;
+      }
+      #printArea {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body class="min-h-screen flex flex-col justify-between p-3 md:p-6 font-lexend">
+
+
+  <!-- NOTICE BANNER FOR FILE:// PROTOCOL -->
+  <div id="fileProtocolBanner" class="hidden max-w-4xl mx-auto w-full mb-3 bg-amber-100 border-4 border-amber-400 text-amber-950 p-4 rounded-3xl shadow-sm">
+    <div class="flex items-start gap-3">
+      <span class="text-3xl">⚠️</span>
+      <div class="text-xs md:text-sm">
+        <h3 class="font-extrabold text-base text-amber-950 ">Nota Microfono per Browser</h3>
+        <p class="mt-1">
+          I browser bloccano il microfono su <code>file:///</code>. Avvia il server su <code>https://</code> per abilitare l'Auto-Ascolto.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="max-w-4xl mx-auto w-full flex-1 flex flex-col gap-4">
+
+    <!-- TOP HEADER / REWARDS & PROFILE BAR -->
+    <header class="bg-white rounded-3xl p-3 md:px-5 shadow-xs border-2 border-amber-200 flex flex-wrap items-center justify-between gap-3 transition-all">
+      
+      <!-- Brand Logo & Navigation -->
+      <div class="flex items-center gap-2">
+        <a href="https://github.com/open-edukit/leggofacile" target="_blank" rel="noopener noreferrer" title="Repository Open-Source su GitHub" aria-label="Repository GitHub di Open-EduKit" class="p-2.5 sm:px-3 sm:py-2 rounded-2xl bg-amber-100 hover:bg-amber-200 border-2 border-amber-300 text-amber-950 font-bold text-xs sm:text-sm bubble-btn flex items-center gap-1.5 transition min-h-[44px]">
+          <span aria-hidden="true">🐙</span>
+          <span class="hidden sm:inline">GitHub</span>
+        </a>
+        <div id="headerLogo" class="flex items-center gap-2 cursor-pointer ml-1">
+
+          <span class="text-3xl md:text-4xl" aria-hidden="true">🦉</span>
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="text-xl md:text-2xl font-black text-amber-950 leading-none">LeggoFacile</h1>
+              <span class="text-xs font-bold bg-amber-100 text-amber-900 border border-amber-300 px-2 py-0.5 rounded-full leading-none">v2.1.2</span>
+            </div>
+
+            <p class="text-xs text-amber-800 font-semibold mt-1">Sillabe, Riconoscimento Vocale & DSA/ADHD</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions & Badges -->
+      <div class="flex items-center flex-wrap gap-2 md:gap-2.5">
+        
+        <!-- Profile Switcher Button -->
+        <button id="profileSelectorBtn" aria-label="Cambia o crea profilo lettore" class="bg-teal-50 hover:bg-teal-100 border-2 border-teal-300 text-teal-900 px-3 py-2 rounded-2xl flex items-center gap-1.5 font-black text-xs md:text-sm bubble-btn min-h-[44px]">
+          <span id="currentProfileAvatar" aria-hidden="true">🦁</span>
+          <span id="currentProfileName">Campione 1</span>
+        </button>
+
+        <!-- Stars Counter -->
+        <div class="bg-yellow-100 border-2 border-yellow-300 text-yellow-900 px-3 py-2 rounded-2xl flex items-center gap-1.5 font-black text-xs md:text-sm shadow-xs min-h-[44px]" aria-label="Stelle guadagnate">
+          <span aria-hidden="true">⭐</span>
+          <span id="starsDisplay">0</span>
+        </div>
+
+        <!-- Stickers Album Trigger -->
+        <button id="badgeModalBtn" aria-label="Visualizza album dei 32 trofei" class="bg-purple-100 hover:bg-purple-200 border-2 border-purple-300 text-purple-900 px-3 py-2 rounded-2xl font-black text-xs md:text-sm bubble-btn flex items-center gap-1.5 min-h-[44px]">
+          <span aria-hidden="true">🎁</span>
+          <span id="badgeCounter">0/32</span>
+        </button>
+
+        <!-- Settings Button -->
+        <button id="settingsBtn" title="Impostazioni accessibilità" aria-label="Impostazioni di accessibilità e font" class="bg-slate-100 hover:bg-slate-200 border-2 border-slate-300 text-slate-800 p-2.5 rounded-2xl font-bold text-sm bubble-btn min-h-[44px] min-w-[44px] flex items-center justify-center">
+          <span aria-hidden="true">⚙️</span>
+        </button>
+
+        <!-- Speech Therapist Button -->
+        <button id="logopedistaBtn" title="Area Genitore & Logopedista" aria-label="Area riservata genitore e logopedista" class="bg-rose-100 hover:bg-rose-200 border-2 border-rose-300 text-rose-900 px-3 py-2 rounded-2xl font-bold text-xs md:text-sm bubble-btn flex items-center gap-1.5 min-h-[44px]">
+          <span aria-hidden="true">🩺</span>
+          <span class="hidden sm:inline">Logopedista</span>
+        </button>
+
+        <!-- New Story Button -->
+        <button id="newStoryBtn" aria-label="Carica o scrivi una nuova storia" class="bg-amber-500 hover:bg-amber-600 text-white font-black px-3.5 py-2 rounded-2xl text-xs md:text-sm bubble-btn min-h-[44px]">
+          📖 Nuova Storia
+        </button>
+      </div>
+    </header>
+
+    <!-- SETUP VIEW: STORY INPUT / PRESETS / OCR -->
+    <section id="setupSection" class="bg-white rounded-3xl p-5 md:p-8 shadow-xs border-2 border-amber-200 flex flex-col gap-6">
+      <div>
+        <h2 class="text-xl md:text-2xl font-black text-amber-950">
+          Scegli o Scrivi la Storia da Leggere 📖
+        </h2>
+        <p class="text-xs md:text-sm text-slate-700 mt-1">
+          La punteggiatura, le virgole e la struttura delle frasi verranno preservate integre durante tutta l'esperienza di lettura.
+        </p>
+      </div>
+
+
+      <!-- Presets -->
+      <div class="flex flex-wrap gap-2">
+        <button data-preset-index="0" class="bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold px-3 py-1.5 rounded-2xl text-xs md:text-sm bubble-btn">
+          🐱 La gatta Luna
+        </button>
+        <button data-preset-index="1" class="bg-blue-100 hover:bg-blue-200 text-blue-900 font-bold px-3 py-1.5 rounded-2xl text-xs md:text-sm bubble-btn">
+          🐶 Il cane Briciola
+        </button>
+        <button data-preset-index="2" class="bg-emerald-100 hover:bg-emerald-200 text-emerald-900 font-bold px-3 py-1.5 rounded-2xl text-xs md:text-sm bubble-btn">
+          🌲 Nel Bosco Magico
+        </button>
+        <button data-preset-index="3" class="bg-orange-100 hover:bg-orange-200 text-orange-900 font-bold px-3 py-1.5 rounded-2xl text-xs md:text-sm bubble-btn">
+          🦊 La volpe furba
+        </button>
+      </div>
+
+      <!-- Textarea Input -->
+      <div>
+        <textarea id="storyTextInput" rows="4" class="w-full p-4 rounded-2xl border-2 border-amber-200 bg-amber-50/40 text-base md:text-lg focus:outline-none focus:border-amber-500 font-medium resize-none" placeholder="Scrivi qui il testo da leggere o usa la fotocamera..."></textarea>
+      </div>
+
+      <!-- OCR Camera Upload -->
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-3 bg-amber-50/70 p-4 rounded-2xl border border-amber-200">
+        <div class="flex items-center gap-3">
+          <span class="text-3xl">📷</span>
+          <div>
+            <h4 class="font-bold text-sm text-amber-950 ">Carica Foto del Libro (OCR In-Browser)</h4>
+            <p class="text-xs text-amber-800">Estrae il testo italiano mantenendo la struttura del brano.</p>
+          </div>
+        </div>
+        <label class="bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs md:text-sm px-4 py-2 rounded-2xl cursor-pointer bubble-btn shrink-0">
+          📁 Scegli Immagine
+          <input id="ocrFileInput" type="file" accept="image/*" class="hidden">
+        </label>
+      </div>
+
+      <!-- OCR Progress Bar Box -->
+      <div id="ocrProgressBox" class="hidden flex-col gap-1.5 bg-sky-50 border border-sky-200 p-3 rounded-2xl">
+        <div class="flex justify-between text-xs font-bold text-sky-900">
+          <span id="ocrStatusLabel">Caricamento OCR...</span>
+          <span id="ocrPercentLabel">0%</span>
+        </div>
+        <div class="w-full bg-sky-200 h-2.5 rounded-full overflow-hidden">
+          <div id="ocrProgressBar" class="bg-sky-500 h-full w-0 transition-all duration-200"></div>
+        </div>
+      </div>
+
+      <!-- Start Button -->
+      <button id="startPlayBtn" class="bg-emerald-500 hover:bg-emerald-600 text-white font-black text-lg md:text-xl py-4 rounded-3xl bubble-btn shadow-md flex items-center justify-center gap-2">
+        <span>🚀</span>
+        <span>INIZIA A LEGGERE!</span>
+      </button>
+    </section>
+
+    <!-- PLAY VIEW: READING KARAOKE, HORIZONTAL RIBBON & ADHD TOOLS -->
+    <section id="playSection" class="hidden flex-col gap-4">
+      
+      <!-- TOP READING BAR: PROGRESS & ADHD ASSIST TOOLBAR -->
+      <div class="bg-white rounded-2xl p-2.5 px-4 border-2 border-amber-200 flex flex-wrap items-center justify-between gap-3 shadow-xs">
+        
+        <!-- Progress bar & word counter -->
+        <div class="flex items-center gap-3 flex-1 min-w-[200px]">
+          <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden border border-slate-200">
+            <div id="karaokeProgress" class="bg-teal-500 h-full w-0 transition-all duration-300"></div>
+          </div>
+          <span id="wordIndexBadge" class="shrink-0 text-xs md:text-sm font-black text-amber-950 ">
+            Parola 1 di 1
+          </span>
+        </div>
+
+        <!-- ADHD & Concentration Controls -->
+        <div class="flex items-center gap-2">
+          
+          <!-- Reading Ruler Toggle -->
+          <button id="toggleRulerBtn" title="Mascherino di Focalizzazione ADHD: attenua il testo circostante" class="bg-teal-500 text-white px-3 py-1 rounded-xl text-xs font-bold bubble-btn flex items-center gap-1">
+            <span>📏</span>
+            <span class="hidden sm:inline">Mascherino</span>
+          </button>
+
+          <!-- Pacer / Rhythmic Auto-scroll -->
+          <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
+            <button id="pacerToggleBtn" title="Scorrimento ritmato automatico guidato" class="bg-slate-100 text-slate-700 px-2.5 py-0.5 rounded-lg text-xs font-bold bubble-btn flex items-center gap-1">
+              <span>⏱️</span>
+              <span class="hidden sm:inline">Pacer</span>
+            </button>
+            <select id="pacerSpeedSelect" title="Velocità scorrimento pacer" class="text-xs font-bold bg-transparent border-0 focus:outline-none text-slate-700 pr-1 cursor-pointer">
+              <option value="3200">Lento</option>
+              <option value="2500" selected>Normale</option>
+              <option value="1600">Veloce</option>
+            </select>
+          </div>
+
+          <!-- Zen Mode Toggle -->
+          <button id="toggleZenBtn" title="Modalità Zen: elimina ogni distrazione periferica" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 rounded-xl text-xs font-bold bubble-btn flex items-center gap-1">
+            <span>🧘</span>
+            <span class="hidden sm:inline">Zen</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 1. CONTINUOUS HORIZONTAL READING RIBBON (Scorrimento Laterale Continuo) -->
+      <div class="bg-white rounded-3xl p-3 border-2 border-amber-200 shadow-xs relative flex items-center gap-2">
+        <!-- Previous word button (44x44px accessible touch target) -->
+        <button id="prevWordBtn" title="Parola precedente (Freccia Sinistra)" aria-label="Parola precedente" class="shrink-0 w-11 h-11 rounded-2xl bg-amber-100 hover:bg-amber-200 text-amber-950 font-black flex items-center justify-center text-lg bubble-btn z-10">
+          ◀
+        </button>
+
+        <!-- Horizontal Ribbon Container with Lateral Mask -->
+        <div class="flex-1 overflow-hidden ribbon-container relative py-1" aria-label="Nastro di lettura orizzontale">
+          <div id="horizontalReadingRibbon" class="flex items-center gap-3 overflow-x-auto no-scrollbar scroll-smooth px-8 py-2">
+            <!-- Dynamically populated with smoothly sliding words -->
+          </div>
+        </div>
+
+        <!-- Next word button (44x44px accessible touch target) -->
+        <button id="nextWordBtn" title="Parola successiva (Freccia Destra)" aria-label="Parola successiva" class="shrink-0 w-11 h-11 rounded-2xl bg-amber-100 hover:bg-amber-200 text-amber-950 font-black flex items-center justify-center text-lg bubble-btn z-10">
+          ▶
+        </button>
+      </div>
+
+      <!-- 2. BIG WORD FOCUS CARD (Sillabe Interattive & Decodifica Fonemica) -->
+      <div id="focusCard" class="bg-white rounded-3xl p-6 md:p-9 shadow-xs border-4 border-amber-300 flex flex-col items-center justify-center text-center gap-3 relative overflow-hidden transition-all">
+        
+        <div class="text-xs uppercase font-extrabold text-amber-700 tracking-wider">
+          Tocca le sillabe o leggile a voce alta
+        </div>
+
+        <!-- Syllables container (scalable via settings) -->
+        <div id="syllableContainer" class="flex flex-wrap items-center justify-center gap-2 md:gap-3 py-1 transition-transform" aria-label="Sillabe della parola corrente" role="group">
+          <!-- Dynamically populated with .syl-pill-X buttons -->
+        </div>
+
+        <!-- Phonemes spelling decomposition (L • E • T • T • E • R • E) -->
+        <div id="phonemeSpelling" class="text-slate-500 font-bold tracking-widest text-xs md:text-sm mt-0.5 uppercase" aria-label="Lettere della parola">
+          -
+        </div>
+
+        <!-- Hesitation Visual Hint (Appears after 8s silence) -->
+        <div id="hesitationHint" class="hidden bg-amber-100 border-2 border-amber-400 text-amber-950 px-4 py-2 rounded-2xl text-xs md:text-sm font-bold shadow-xs" role="note" aria-live="polite">
+          💡 Suggerimento: prova a pronunciare la prima sillaba!
+        </div>
+
+        <!-- Live feedback toast (Success fanfare or funny raspberry) -->
+        <div id="liveFeedbackToast" class="hidden mt-1 px-4 py-2 rounded-2xl text-xs md:text-sm font-black flex items-center gap-2 transition-all" role="status" aria-live="polite">
+          <span id="feedbackEmoji" aria-hidden="true">⭐</span>
+          <span id="feedbackText">Bravissimo!</span>
+        </div>
+      </div>
+
+      <!-- SPEECH RECOGNITION & AUTO-ASCOLTO CONTROLS -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        
+        <!-- Big Auto-Listen Toggle Button -->
+        <button id="autoListenToggle" aria-label="Attiva o disattiva auto ascolto vocale" class="bg-emerald-500 hover:bg-emerald-600 text-white p-3.5 md:p-4 rounded-3xl bubble-btn shadow-xs flex items-center justify-between gap-4 text-left relative overflow-hidden min-h-[56px]">
+          <div class="flex items-center gap-3">
+            <span id="autoListenIcon" class="text-3xl" aria-hidden="true">🎙️</span>
+            <div>
+              <div id="autoListenTitle" class="font-black text-base md:text-lg">
+                ATTIVA AUTO-ASCOLTO
+              </div>
+              <div id="autoListenDesc" class="text-xs text-white/90 font-medium">
+                Ascolta sempre senza cliccare!
+              </div>
+            </div>
+          </div>
+          <div id="autoListenWave" class="hidden w-4 h-4 rounded-full bg-white mic-live-pulse shrink-0" aria-hidden="true"></div>
+        </button>
+
+        <!-- TTS Audio Help (Max 6 hearts) -->
+        <button id="ttsHelpButton" aria-label="Ascolta pronuncia della parola con sintesi vocale" class="bg-sky-500 hover:bg-sky-600 text-white p-3.5 md:p-4 rounded-3xl bubble-btn shadow-xs flex items-center justify-between gap-3 text-left min-h-[56px]">
+          <div class="flex items-center gap-3">
+            <span class="text-3xl" aria-hidden="true">🔊</span>
+            <div>
+              <div class="font-black text-base md:text-lg">
+                ASCOLTA LA PAROLA
+              </div>
+              <div id="ttsHelpSub" class="text-xs text-white/90 font-medium">
+                Pronuncia vocale rallentata
+              </div>
+            </div>
+          </div>
+          <span id="ttsQuotaBadge" class="bg-white/20 text-white font-mono font-bold text-xs px-2.5 py-1 rounded-xl">
+            ❤️❤️❤️❤️❤️❤️ 6/6
+          </span>
+        </button>
+      </div>
+
+      <!-- Live Heard Speech Transcript Bar -->
+      <div class="bg-amber-100/70 border border-amber-300 rounded-2xl p-2.5 px-3.5 flex items-center justify-between text-xs md:text-sm" role="status" aria-live="polite">
+        <div class="flex items-center gap-2 overflow-hidden">
+          <span class="font-bold text-amber-950 shrink-0">Il gufo ascolta:</span>
+          <span id="heardTranscript" class="text-amber-900 font-mono italic truncate">In attesa di voce...</span>
+        </div>
+      </div>
+
+      <!-- 3. FULL STORY CONTEXT CARD (Preserva Punteggiatura, Spazi e Struttura) -->
+      <div id="storyContextCard" class="bg-white rounded-3xl p-5 md:p-6 border-2 border-amber-200 shadow-xs transition-all">
+        <div class="flex items-center justify-between mb-2">
+          <h4 class="text-xs uppercase font-extrabold text-amber-800">
+            📖 Testo Completo con Punteggiatura Originale
+          </h4>
+          <span class="text-xs text-slate-500 font-semibold">Tocca qualsiasi parola per saltare lì</span>
+        </div>
+        <div id="fullStoryContainer" class="text-base md:text-lg leading-relaxed text-slate-800">
+          <!-- Populated with intact paragraphs, commas, periods and active word highlight -->
+        </div>
+      </div>
+
+
+      <!-- Manual Parent / Teacher Override Controls -->
+      <div id="parentControlsRow" class="bg-white rounded-2xl p-3 border-2 border-slate-200 flex items-center justify-between gap-2 text-xs">
+        <span class="text-slate-500 font-bold hidden sm:inline">Comandi genitore:</span>
+        <div class="flex gap-2 w-full sm:w-auto">
+          <button id="manualMistakeBtn" class="flex-1 sm:flex-none bg-rose-100 hover:bg-rose-200 text-rose-800 font-bold px-3 py-1.5 rounded-xl bubble-btn">
+            💨 Pernacchia & Riprova
+          </button>
+          <button id="manualCorrectBtn" class="flex-1 sm:flex-none bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-bold px-3 py-1.5 rounded-xl bubble-btn">
+            ⭐ Parola Letta Bene!
+          </button>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <!-- MODAL: PROFILES SWITCHER & CREATOR -->
+  <div id="profileModal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 border-4 border-teal-300 shadow-xl flex flex-col gap-4">
+      <div class="flex items-center justify-between">
+        <h3 class="text-xl font-black text-teal-950 ">Profili Lettura 👦👧</h3>
+        <button onclick="closeModal('profileModal')" class="text-slate-400 hover:text-slate-600 text-xl font-bold">✕</button>
+      </div>
+
+      <div id="profilesList" class="flex flex-col gap-2 max-h-56 overflow-y-auto pr-1"></div>
+
+      <!-- Create Profile -->
+      <div class="border-t border-slate-200 pt-3 flex flex-col gap-2">
+        <h4 class="text-xs font-bold text-slate-600 uppercase ">Aggiungi nuovo lettore</h4>
+        <div class="flex gap-2">
+          <select id="newProfileAvatarSelect" class="border-2 border-slate-200 rounded-xl p-2 text-xl bg-slate-50">
+            <option value="🦁">🦁</option>
+            <option value="🐰">🐰</option>
+            <option value="🐱">🐱</option>
+            <option value="🐻">🐻</option>
+            <option value="🦊">🦊</option>
+            <option value="🐼">🐼</option>
+            <option value="🦄">🦄</option>
+            <option value="🚀">🚀</option>
+          </select>
+          <input id="newProfileNameInput" type="text" placeholder="Nome bambino..." class="flex-1 border-2 border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-teal-500 font-bold">
+          <button id="createProfileBtn" class="bg-teal-500 hover:bg-teal-600 text-white font-black px-4 rounded-xl text-sm bubble-btn">
+            + Aggiungi
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: BADGE ALBUM (32 PROGRESSIVE TROPHIES & 4 WORLDS) -->
+  <div id="badgeModal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-3xl max-w-2xl w-full p-5 md:p-6 border-4 border-purple-300 shadow-xl flex flex-col gap-3.5 max-h-[92vh] overflow-y-auto">
+      
+      <div class="flex items-center justify-between border-b border-purple-100 pb-3">
+        <div class="flex items-center gap-2">
+          <span class="text-3xl">🏆</span>
+          <div>
+            <h3 class="text-lg md:text-xl font-black text-purple-950  leading-none">
+              Gran Galà dei Trofei (32 Premi)
+            </h3>
+            <p class="text-xs text-purple-700 font-semibold mt-0.5">Sblocca nuovi mondi leggendari leggendo le storie!</p>
+          </div>
+        </div>
+        <button onclick="closeModal('badgeModal')" class="text-slate-400 hover:text-slate-600 text-xl font-bold">✕</button>
+      </div>
+
+      <!-- Goal & Next Unlock Progress Banner -->
+      <div id="badgeGoalBanner" class="bg-purple-50 border-2 border-purple-200 rounded-2xl p-3"></div>
+
+      <!-- World Filter Tabs -->
+      <div id="worldFilterTabs" class="flex flex-wrap items-center gap-1.5 pb-1"></div>
+
+      <!-- Stickers & Trophies Grid -->
+      <div id="stickersGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5 max-h-72 overflow-y-auto pr-1"></div>
+
+      <button onclick="closeModal('badgeModal')" class="bg-purple-500 hover:bg-purple-600 text-white font-black py-2.5 rounded-2xl bubble-btn">
+        Torna alla lettura
+      </button>
+    </div>
+  </div>
+
+  <!-- MODAL: ACCESSIBILITY & SETTINGS -->
+  <div id="settingsModal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 border-4 border-amber-300 shadow-xl flex flex-col gap-5">
+      <div class="flex items-center justify-between">
+        <h3 class="text-xl font-black text-amber-950 ">Impostazioni & Accessibilità ⚙️</h3>
+        <button onclick="closeModal('settingsModal')" class="text-slate-400 hover:text-slate-600 text-xl font-bold">✕</button>
+      </div>
+
+      <!-- Font Selector -->
+      <div>
+        <label class="block text-xs font-bold text-slate-700 uppercase  mb-1">
+          Carattere Tipografico (Font DSA)
+        </label>
+        <select id="fontSelector" class="w-full border-2 border-slate-200 rounded-xl p-2.5 text-sm bg-white font-bold">
+          <option value="Lexend">Lexend (Predefinito - Anti-affollamento visivo)</option>
+          <option value="OpenDyslexic">OpenDyslexic (Disegnato specificamente per DSA)</option>
+          <option value="Fredoka">Fredoka (Morbido e giocoso)</option>
+        </select>
+      </div>
+
+      <!-- Syllable Size Scaling Slider -->
+      <div>
+        <div class="flex justify-between items-center mb-1">
+          <label class="text-xs font-bold text-slate-700 uppercase ">
+            Dimensione Sillabe
+          </label>
+          <span id="syllableScaleVal" class="text-xs font-mono font-bold text-amber-700">100%</span>
+        </div>
+        <input id="syllableScaleSlider" type="range" min="80" max="140" step="5" value="100" class="w-full accent-amber-500 cursor-pointer">
+      </div>
+
+      <button onclick="closeModal('settingsModal')" class="bg-amber-500 hover:bg-amber-600 text-white font-black py-2.5 rounded-2xl bubble-btn">
+        Salva e Chiudi
+      </button>
+    </div>
+  </div>
+
+  <!-- MODAL: PIN PROTECTED ACCESS -->
+  <div id="pinModal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-3xl max-w-xs w-full p-6 border-4 border-rose-300 shadow-xl flex flex-col gap-4 text-center">
+      <div class="text-3xl">🔒</div>
+      <h3 class="text-lg font-black text-rose-950 ">Area Riservata Genitore</h3>
+      <p class="text-xs text-slate-500">Inserisci il PIN per visualizzare le statistiche logopediche (Default: <strong>1234</strong>)</p>
+      
+      <input id="pinInput" type="password" maxlength="6" class="w-full border-2 border-slate-300 rounded-2xl p-3 text-center text-2xl font-mono tracking-widest focus:outline-none focus:border-rose-400">
+      <div id="pinError" class="hidden text-xs text-rose-600 font-bold">PIN non valido! Riprova.</div>
+
+      <div class="flex gap-2">
+        <button onclick="closeModal('pinModal')" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-2 rounded-xl text-sm bubble-btn">
+          Annulla
+        </button>
+        <button id="pinSubmitBtn" class="flex-1 bg-rose-500 hover:bg-rose-600 text-white font-bold py-2 rounded-xl text-sm bubble-btn">
+          Accedi
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: LOGOPEDISTA / PARENT DASHBOARD -->
+  <div id="logopedistaModal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+    <div id="printArea" class="bg-white rounded-3xl max-w-2xl w-full p-6 border-4 border-rose-300 shadow-xl flex flex-col gap-4 max-h-[90vh] overflow-y-auto">
+      
+      <div class="flex items-center justify-between border-b pb-3">
+        <div class="flex items-center gap-2">
+          <span class="text-3xl">🩺</span>
+          <div>
+            <h3 class="text-lg md:text-xl font-black text-rose-950  leading-none">
+              Report Logopedico & Didattico
+            </h3>
+            <p id="dashProfileName" class="text-xs text-slate-500 font-bold mt-0.5">Campione 1</p>
+          </div>
+        </div>
+        <button onclick="closeModal('logopedistaModal')" class="text-slate-400 hover:text-slate-600 text-xl font-bold">✕</button>
+      </div>
+
+      <!-- KPI Grid -->
+      <div class="grid grid-cols-3 gap-3">
+        <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200 text-center">
+          <div class="text-xs text-slate-500 font-bold">Parole Lette</div>
+          <div id="dashTotalWords" class="text-xl md:text-2xl font-black text-slate-800">0</div>
+        </div>
+        <div class="bg-emerald-50 p-3 rounded-2xl border border-emerald-200 text-center">
+          <div class="text-xs text-emerald-700 font-bold">Accuratezza 1° Colpo</div>
+          <div id="dashAccuracy" class="text-xl md:text-2xl font-black text-emerald-800">100%</div>
+        </div>
+        <div class="bg-sky-50 p-3 rounded-2xl border border-sky-200 text-center">
+          <div class="text-xs text-sky-700 font-bold">Aiuti Audio (TTS)</div>
+          <div id="dashTtsUsed" class="text-xl md:text-2xl font-black text-sky-800">0</div>
+        </div>
+      </div>
+
+      <!-- Critical Phonemes Table -->
+      <div>
+        <h4 class="text-xs font-bold text-slate-700 uppercase  mb-2">
+          Registro Errori & Fonemi da Esercitare
+        </h4>
+        <div class="border border-slate-200 rounded-2xl overflow-hidden max-h-48 overflow-y-auto">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead class="bg-slate-100 text-slate-600 font-bold">
+              <tr>
+                <th class="p-2.5">Parola</th>
+                <th class="p-2.5 text-center">Tentativi</th>
+                <th class="p-2.5">Nessi Fonetici Coinvolti</th>
+                <th class="p-2.5">Data</th>
+              </tr>
+            </thead>
+            <tbody id="dashMistakesBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Actions: Export CSV & Print -->
+      <div class="flex flex-wrap items-center justify-between gap-2 border-t pt-3">
+        <div class="flex gap-2">
+          <button id="exportCsvBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-3 py-2 rounded-xl bubble-btn flex items-center gap-1">
+            <span>📥</span> Esporta CSV
+          </button>
+          <button id="printReportBtn" class="bg-slate-700 hover:bg-slate-800 text-white font-bold text-xs px-3 py-2 rounded-xl bubble-btn flex items-center gap-1">
+            <span>🖨️</span> Stampa Report
+          </button>
+        </div>
+        <button onclick="closeModal('logopedistaModal')" class="bg-rose-500 hover:bg-rose-600 text-white font-bold text-xs px-4 py-2 rounded-xl bubble-btn">
+          Chiudi
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MAIN SCRIPT MODULE -->
+  <script type="module" src="./src/app.js"></script>
+
+</body>
+</html>

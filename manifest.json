@@ -1,0 +1,19 @@
+{
+  "name": "LeggoFacile - Lettura e Sillabe DSA",
+  "short_name": "LeggoFacile",
+  "description": "App di lettura facilitata, sillabazione precisa e auto-ascolto per bambini con DSA",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#FAF7EE",
+  "theme_color": "#FAF7EE",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "./icons/icon.svg",
+      "sizes": "512x512 192x192 128x128 64x64",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["education", "kids", "books"]
+}

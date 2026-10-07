@@ -1,0 +1,16 @@
+# Local TLS keys & Dev server
+*.pem
+server_https.py
+users.json
+
+# Dependencies
+node_modules/
+package-lock.json
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs & temp
+*.log
+.cache/
