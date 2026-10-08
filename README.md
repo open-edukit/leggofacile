@@ -6,7 +6,7 @@
 Parte dell'iniziativa **[Open-EduKit](https://github.com/open-edukit)**.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Version](https://img.shields.io/badge/version-2.1.2-emerald.svg)](https://github.com/open-edukit/leggofacile/releases)
+[![Version](https://img.shields.io/badge/version-2.1.3-emerald.svg)](https://github.com/open-edukit/leggofacile/releases)
 [![PWA Ready](https://img.shields.io/badge/PWA-Offline--First-blue.svg)](./manifest.json)
 [![Demo](https://img.shields.io/badge/Demo-GitHub%20Pages-purple.svg)](https://open-edukit.github.io/leggofacile/)
 

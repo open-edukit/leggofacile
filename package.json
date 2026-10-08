@@ -1,0 +1,31 @@
+{
+  "name": "leggofacile",
+  "version": "2.1.3",
+  "description": "Strumento inclusivo e open-source di lettura facilitata, sillabazione fonetica interattiva e auto-ascolto vocale.",
+  "type": "module",
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "version:check": "node scripts/bump-version.js --check",
+    "version:bump": "node scripts/bump-version.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/open-edukit/leggofacile.git"
+  },
+  "keywords": [
+    "dyslexia",
+    "dsa",
+    "adhd",
+    "speech-recognition",
+    "syllabification",
+    "italian-language",
+    "pwa",
+    "accessibility"
+  ],
+  "author": "Enzo Carlettini (@iamenzo83)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/open-edukit/leggofacile/issues"
+  },
+  "homepage": "https://open-edukit.github.io/leggofacile/"
+}

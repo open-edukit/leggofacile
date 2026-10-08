@@ -1,5 +1,20 @@
 # 📝 Changelog LeggoFacile
 
+## [2.1.3] - 2026-10-08
+
+### Security & Hardening
+- **Bonifica CodeQL e Sanitizzazione DOM**:
+  - Risolto alert CodeQL su `hintBox.innerHTML` implementando manipolazione sicura dell'albero DOM (`textContent` e `document.createElement`).
+  - Bonificati tutti i template literal non sanitizzati in `openProfileModal()` e `renderLogopedistaDashboard()`, eliminando ogni vettore di Stored/DOM-based XSS dai profili o dal registro errori.
+- **Protezione da Formula / CSV Injection**:
+  - La funzione di esportazione `exportCSV()` in `src/storage.js` neutralizza attacchi di spreadsheet injection su fogli di calcolo Excel/Calc sanitizzando i prefissi `=, +, -, @, \t, \r` con l'apostrofo `'`, effettuando l'escape dei doppi apici `""` e aggiungendo il Byte Order Mark UTF-8 (`\uFEFF`).
+- **Mitigazione DoS & Input Flooding**:
+  - Aggiunto `maxlength="15000"` su `#storyTextInput` per evitare freeze da parsing regex di brani anomali.
+  - Aggiunto `maxlength="30"` su `#newProfileNameInput`.
+- **Pipeline di Versioning & Release**:
+  - Introdotto `package.json` con script nativi (`npm test`, `npm run version:check`, `npm run version:bump`).
+  - Introdotta pipeline `scripts/bump-version.js` per garantire la sincronizzazione atomica tra codice (`index.html`), documentazione (`README.md`, `docs/changelog.md`) e repository (`git tag`).
+
 ## [2.1.2] - 2026-10-07
 
 ### Added & Improved
