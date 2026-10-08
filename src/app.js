@@ -244,16 +244,39 @@ class LeggoFacileApp {
       item.className = `p-3 rounded-2xl border-2 flex items-center justify-between cursor-pointer transition-all ${
         isCurrent ? 'bg-amber-100 border-amber-400 font-black' : 'bg-white border-slate-200 hover:bg-slate-50'
       }`;
-      item.innerHTML = `
-        <div class="flex items-center gap-3">
-          <span class="text-3xl">${p.avatar || '⭐'}</span>
-          <div>
-            <div class="text-base text-slate-800">${p.name}</div>
-            <div class="text-xs text-slate-500 font-semibold">⭐ ${p.stars} stelle • 🎁 ${p.badgesUnlocked}/6 cuccioli</div>
-          </div>
-        </div>
-        ${isCurrent ? '<span class="text-amber-800 text-xs px-2 py-1 bg-amber-200 rounded-lg">Attivo</span>' : ''}
-      `;
+
+      const leftContainer = document.createElement('div');
+      leftContainer.className = 'flex items-center gap-3';
+
+      const avatarSpan = document.createElement('span');
+      avatarSpan.className = 'text-3xl';
+      avatarSpan.textContent = p.avatar || '⭐';
+
+      const textWrapper = document.createElement('div');
+
+      const nameDiv = document.createElement('div');
+      nameDiv.className = 'text-base text-slate-800';
+      nameDiv.textContent = p.name;
+
+      const subDiv = document.createElement('div');
+      subDiv.className = 'text-xs text-slate-500 font-semibold';
+      subDiv.textContent = `⭐ ${p.stars} stelle • 🎁 ${p.badgesUnlocked}/32 trofei`;
+
+      textWrapper.appendChild(nameDiv);
+      textWrapper.appendChild(subDiv);
+
+      leftContainer.appendChild(avatarSpan);
+      leftContainer.appendChild(textWrapper);
+
+      item.appendChild(leftContainer);
+
+      if (isCurrent) {
+        const badge = document.createElement('span');
+        badge.className = 'text-amber-800 text-xs px-2 py-1 bg-amber-200 rounded-lg';
+        badge.textContent = 'Attivo';
+        item.appendChild(badge);
+      }
+
       item.onclick = () => {
         this.storage.switchProfile(p.id);
         this.updateHeaderProfileUI();
@@ -261,6 +284,7 @@ class LeggoFacileApp {
       };
       list.appendChild(item);
     });
+
 
     this.openModal('profileModal');
   }
@@ -974,15 +998,35 @@ class LeggoFacileApp {
     profile.mistakesLog.forEach(m => {
       const tr = document.createElement('tr');
       tr.className = "border-b border-slate-100 hover:bg-slate-50";
-      tr.innerHTML = `
-        <td class="p-2.5 font-black text-slate-800">${m.word}</td>
-        <td class="p-2.5 text-center"><span class="bg-rose-100 text-rose-800 px-2 py-0.5 rounded-full text-xs font-bold">${m.attempts}</span></td>
-        <td class="p-2.5 text-xs text-slate-600">${(m.categories || []).join(', ')}</td>
-        <td class="p-2.5 text-xs text-slate-400">${new Date(m.lastDate).toLocaleDateString('it-IT')}</td>
-      `;
+
+      const tdWord = document.createElement('td');
+      tdWord.className = "p-2.5 font-black text-slate-800";
+      tdWord.textContent = m.word;
+
+      const tdAttempts = document.createElement('td');
+      tdAttempts.className = "p-2.5 text-center";
+      const spanAttempts = document.createElement('span');
+      spanAttempts.className = "bg-rose-100 text-rose-800 px-2 py-0.5 rounded-full text-xs font-bold";
+      spanAttempts.textContent = String(m.attempts || 1);
+      tdAttempts.appendChild(spanAttempts);
+
+      const tdCat = document.createElement('td');
+      tdCat.className = "p-2.5 text-xs text-slate-600";
+      tdCat.textContent = (m.categories || []).join(', ');
+
+      const tdDate = document.createElement('td');
+      tdDate.className = "p-2.5 text-xs text-slate-400";
+      tdDate.textContent = m.lastDate ? new Date(m.lastDate).toLocaleDateString('it-IT') : '-';
+
+      tr.appendChild(tdWord);
+      tr.appendChild(tdAttempts);
+      tr.appendChild(tdCat);
+      tr.appendChild(tdDate);
+
       tableBody.appendChild(tr);
     });
   }
+
 
   async runInBrowserOCR(event) {
     const file = event.target.files[0];

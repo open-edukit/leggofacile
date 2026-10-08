@@ -267,15 +267,27 @@ export class StorageService {
   exportCSV(profileId) {
     const profile = this.state.profiles.find(p => p.id === profileId) || this.getActiveProfile();
     const headers = ["Parola", "Numero Errori/Tentativi", "Volte Incontrata", "Categorie Fonetiche", "Ultima Data"];
+
+    // Neutralize formula injection (=, +, -, @) and escape double quotes
+    const sanitizeCell = (val) => {
+      let str = String(val ?? '');
+      // If cell begins with a spreadsheet formula trigger, prefix with apostrophe
+      if (/^[=+\-@\t\r]/.test(str)) {
+        str = "'" + str;
+      }
+      return `"${str.replace(/"/g, '""')}"`;
+    };
+
     const rows = profile.mistakesLog.map(m => [
-      `"${m.word}"`,
-      m.attempts,
-      m.timesEncountered,
-      `"${(m.categories || []).join('; ')}"`,
-      `"${new Date(m.lastDate).toLocaleDateString('it-IT')}"`
+      sanitizeCell(m.word),
+      parseInt(m.attempts, 10) || 1,
+      parseInt(m.timesEncountered, 10) || 1,
+      sanitizeCell((m.categories || []).join('; ')),
+      sanitizeCell(m.lastDate ? new Date(m.lastDate).toLocaleDateString('it-IT') : '')
     ]);
 
-    const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map(r => r.join(","))].join("\n");
+    const csvContent = "data:text/csv;charset=utf-8,\uFEFF" + [headers.map(sanitizeCell).join(","), ...rows.map(r => r.join(","))].join("\n");
     return encodeURI(csvContent);
   }
 }
+

@@ -278,7 +278,7 @@
 
       <!-- Textarea Input -->
       <div>
-        <textarea id="storyTextInput" rows="4" class="w-full p-4 rounded-2xl border-2 border-amber-200 bg-amber-50/40 text-base md:text-lg focus:outline-none focus:border-amber-500 font-medium resize-none" placeholder="Scrivi qui il testo da leggere o usa la fotocamera..."></textarea>
+        <textarea id="storyTextInput" rows="4" maxlength="15000" class="w-full p-4 rounded-2xl border-2 border-amber-200 bg-amber-50/40 text-base md:text-lg focus:outline-none focus:border-amber-500 font-medium resize-none" placeholder="Scrivi qui il testo da leggere o usa la fotocamera..."></textarea>
       </div>
 
       <!-- OCR Camera Upload -->
@@ -510,7 +510,7 @@
             <option value="🦄">🦄</option>
             <option value="🚀">🚀</option>
           </select>
-          <input id="newProfileNameInput" type="text" placeholder="Nome bambino..." class="flex-1 border-2 border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-teal-500 font-bold">
+          <input id="newProfileNameInput" type="text" maxlength="30" placeholder="Nome bambino..." class="flex-1 border-2 border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-teal-500 font-bold">
           <button id="createProfileBtn" class="bg-teal-500 hover:bg-teal-600 text-white font-black px-4 rounded-xl text-sm bubble-btn">
             + Aggiungi
           </button>
