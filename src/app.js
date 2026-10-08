@@ -607,11 +607,26 @@ class LeggoFacileApp {
       }
       if (hintBox) {
         hintBox.classList.remove('hidden');
-        const firstSyl = firstBadge ? firstBadge.innerText : '';
-        hintBox.innerHTML = `💡 <em>Suggerimento:</em> inizia provando a pronunciare <strong>"${firstSyl}"</strong>!`;
+        const firstSyl = firstBadge ? (firstBadge.textContent || '').trim() : '';
+        hintBox.textContent = '';
+        
+        const prefix = document.createTextNode('💡 ');
+        const em = document.createElement('em');
+        em.textContent = 'Suggerimento:';
+        const mid = document.createTextNode(' inizia provando a pronunciare ');
+        const strong = document.createElement('strong');
+        strong.textContent = `"${firstSyl}"`;
+        const suffix = document.createTextNode('!');
+
+        hintBox.appendChild(prefix);
+        hintBox.appendChild(em);
+        hintBox.appendChild(mid);
+        hintBox.appendChild(strong);
+        hintBox.appendChild(suffix);
       }
     }, 8000);
   }
+
 
   toggleContinuousListening() {
     getAudioContext();
