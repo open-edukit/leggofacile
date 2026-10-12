@@ -1,5 +1,18 @@
 # 📝 Changelog LeggoFacile
 
+## [2.1.4] - 2026-10-12
+
+### Fixed
+- **Supporto Omofoni e 'H' Muta Italiana (`ho`, `ha`, `hai`, `hanno`)**:
+  - Risolto il mancato riconoscimento della parola `ho` quando letta correttamente con il solo fonema `/o/`.
+  - Mappati gli omofoni italiani a 'h' muta (`ho` ⇄ `o`/`oh`, `ha` ⇄ `a`/`ah`, `hai` ⇄ `ai`, `hanno` ⇄ `anno`) in `verifyFullWordSpeech()`.
+- **Prevenzione Avanzamento Multiplo / Salto di 2-3 Parole**:
+  - Introdotto abort immediato del buffer audio (`recognition.abort()`) su `resetBuffer()` al cambio parola.
+  - Svuotamento e azzeramento del transcript su conferma parola (`triggerSuccessAdvance`).
+  - Aggiunta finestra temporale di guardia (400ms) all'inizio di ciascuna nuova parola per scartare transcript residui della parola precedente e calibrazione della transizione visiva a 650ms.
+- **Suite di Test**:
+  - Aggiunti test unitari specifici per omofoni italiani e gestione 'h' muta in `test/speech.test.js`.
+
 ## [2.1.3] - 2026-10-08
 
 ### Security & Hardening

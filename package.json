@@ -1,6 +1,6 @@
 {
   "name": "leggofacile",
-  "version": "2.1.3",
+  "version": "2.1.4",
   "description": "Strumento inclusivo e open-source di lettura facilitata, sillabazione fonetica interattiva e auto-ascolto vocale.",
   "type": "module",
   "scripts": {
