@@ -87,10 +87,30 @@ export function verifyFullWordSpeech(heardText, targetWord) {
   const firstSyllable = targetSyllables.length > 0 ? targetSyllables[0] : '';
   const lastSyllable = targetSyllables.length > 0 ? targetSyllables[targetSyllables.length - 1] : '';
 
+  // Homophones / silent-H mappings in Italian (e.g. child reads 'ho' as 'o' or WebSpeech transcribes as 'o'/'oh')
+  const HOMOPHONES = {
+    'ho': ['o', 'oh'],
+    'ha': ['a', 'ah'],
+    'hai': ['ai'],
+    'hanno': ['anno'],
+    'o': ['ho', 'oh'],
+    'a': ['ha', 'ah'],
+    'ai': ['hai'],
+    'anno': ['hanno']
+  };
+
+  const targetEquivalents = new Set([cleanTarget, normTarget]);
+  if (HOMOPHONES[cleanTarget]) {
+    for (const eq of HOMOPHONES[cleanTarget]) {
+      targetEquivalents.add(eq);
+      targetEquivalents.add(normalizeAccents(eq));
+    }
+  }
+
   // 0. Check concatenated tokens for syllable-by-syllable reading (e.g. "gat" + "to" -> "gatto")
   const concatenated = heardTokens.join('');
   const normConcatenated = normalizeAccents(concatenated);
-  if (concatenated === cleanTarget || normConcatenated === normTarget) {
+  if (targetEquivalents.has(concatenated) || targetEquivalents.has(normConcatenated)) {
     return { isMatch: true, heardWord: concatenated };
   }
   const concatSim = calculateWordSimilarity(normConcatenated, normTarget);
@@ -103,8 +123,8 @@ export function verifyFullWordSpeech(heardText, targetWord) {
   for (const token of heardTokens) {
     const normToken = normalizeAccents(token);
 
-    // 1. Exact match with the full word (or exact match ignoring accents: e.g. "perche" vs "perché", "e" vs "è")
-    if (token === cleanTarget || normToken === normTarget) {
+    // 1. Exact match with the full word, accents ignored, or phonetic homophone (e.g. ho -> o / oh)
+    if (targetEquivalents.has(token) || targetEquivalents.has(normToken)) {
       return { isMatch: true, heardWord: token };
     }
 
@@ -232,7 +252,7 @@ export class SpeechController {
           try {
             if (this.isListening) this.recognition.start();
           } catch (err) {}
-        }, 200);
+        }, 150);
       } else {
         if (this.onStateChange) this.onStateChange(false);
       }
@@ -267,6 +287,12 @@ export class SpeechController {
 
   resetBuffer() {
     this.lastEvaluated = "";
+    // Abort active audio buffer in SpeechRecognition to discard lingering spoken words
+    if (this.isListening && this.recognition) {
+      try {
+        this.recognition.abort();
+      } catch (err) {}
+    }
   }
 
   toggle() {

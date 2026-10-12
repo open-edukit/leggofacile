@@ -65,9 +65,31 @@ test('verifyFullWordSpeech - Accepts syllable-by-syllable reading (e.g. "gat to"
   assert.equal(res2.isMatch, true);
 });
 
+test('verifyFullWordSpeech - Handles Italian homophones and silent-H (ho vs o, ha vs a)', () => {
+  // Child reads 'ho' as 'o' or WebSpeech returns 'o' / 'oh' / 'ho'
+  assert.equal(verifyFullWordSpeech('o', 'ho').isMatch, true);
+  assert.equal(verifyFullWordSpeech('oh', 'ho').isMatch, true);
+  assert.equal(verifyFullWordSpeech('ho', 'ho').isMatch, true);
+  assert.equal(verifyFullWordSpeech('ho', 'o').isMatch, true);
+
+  // 'ha' vs 'a' / 'ah'
+  assert.equal(verifyFullWordSpeech('a', 'ha').isMatch, true);
+  assert.equal(verifyFullWordSpeech('ah', 'ha').isMatch, true);
+  assert.equal(verifyFullWordSpeech('ha', 'ha').isMatch, true);
+
+  // 'hai' vs 'ai'
+  assert.equal(verifyFullWordSpeech('ai', 'hai').isMatch, true);
+  assert.equal(verifyFullWordSpeech('hai', 'hai').isMatch, true);
+
+  // 'hanno' vs 'anno'
+  assert.equal(verifyFullWordSpeech('anno', 'hanno').isMatch, true);
+  assert.equal(verifyFullWordSpeech('hanno', 'anno').isMatch, true);
+});
+
 test('verifyFullWordSpeech - Rejects completely wrong words', () => {
   const res = verifyFullWordSpeech('casa', 'gatto');
   assert.equal(res.isMatch, false);
   assert.equal(res.reason, 'wrong_word');
 });
+
 

@@ -43,6 +43,7 @@ class LeggoFacileApp {
     this.hesitationTimer = null;
     this.lastEvaluatedTranscript = "";
     this.isAdvancing = false;
+    this.lastWordTransitionTime = 0;
 
     // ADHD & Reading Assist State
     this.readingRulerActive = true;
@@ -358,6 +359,7 @@ class LeggoFacileApp {
   renderCurrentStage() {
     clearTimeout(this.hesitationTimer);
     this.isAdvancing = false;
+    this.lastWordTransitionTime = Date.now();
     if (this.speech && typeof this.speech.resetBuffer === 'function') {
       this.speech.resetBuffer();
     }
@@ -691,6 +693,11 @@ class LeggoFacileApp {
     if (this.isAdvancing) return;
     if (this.words.length === 0 || this.currentIndex >= this.words.length) return;
 
+    // Guard against residual speech events fired immediately after word transition (within 400ms)
+    if (Date.now() - this.lastWordTransitionTime < 400) {
+      return;
+    }
+
     const currentTarget = this.words[this.currentIndex];
     const heardEl = document.getElementById('heardTranscript');
     if (heardEl) heardEl.innerText = `"${transcript}"`;
@@ -744,6 +751,11 @@ class LeggoFacileApp {
     clearTimeout(this.hesitationTimer);
     playSuccessChime();
 
+    // Immediately reset speech buffer so lingering continuous recognition doesn't carry forward
+    if (this.speech && typeof this.speech.resetBuffer === 'function') {
+      this.speech.resetBuffer();
+    }
+
     const currentWord = this.words[this.currentIndex];
     this.storage.recordWordOutcome(currentWord.clean, Math.max(1, this.wordAttempts), this.usedTTSOnCurrentWord);
     const starOutcome = this.storage.addStar();
@@ -762,7 +774,7 @@ class LeggoFacileApp {
       setTimeout(() => {
         this.currentIndex++;
         this.renderCurrentStage();
-      }, 550);
+      }, 650);
     } else {
       if (typeof confetti === 'function') {
         confetti({ particleCount: 180, spread: 100, origin: { y: 0.5 } });
