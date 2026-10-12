@@ -68,9 +68,9 @@
   - Riconoscimento di parole lette sillaba per sillaba con pause (es. `"gat to"` per `"gatto"`).
   - Riconoscimento del prefisso/sillaba corretta (`isPartial: true, reason: 'partial_syllable'`): incoraggiamento positivo immediato, evidenziazione sillaba, nessun suono di errore.
   - Soglia errori consecutivi: l'avviso di rilettura è paziente per i primi 2 tentativi, suono di errore attivato solo al 3° errore reale consecutivo.
-- **Distribuzione Portale Unificato & Sicurezza**:
-  - Deploy sincronizzato su Firebase Hosting (`caccia-bersaglio-82f3a.web.app`).
-  - Accesso riservato via Google Sign-In limitato alla famiglia Carlettini.
+- **Distribuzione PWA Offline-First & Accessibilità**:
+  - PWA ottimizzata per esecuzione offline-first su tablet e schermi touch.
+  - Zero tracciamento e persistenza sicura 100% lato client (LocalStorage).
 
 ## [2.0.0] - 2026-09-21
 
