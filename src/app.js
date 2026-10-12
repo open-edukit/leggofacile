@@ -44,6 +44,7 @@ class LeggoFacileApp {
     this.lastEvaluatedTranscript = "";
     this.isAdvancing = false;
     this.lastWordTransitionTime = 0;
+    this.isStoryCompleted = false;
 
     // ADHD & Reading Assist State
     this.readingRulerActive = true;
@@ -333,6 +334,7 @@ class LeggoFacileApp {
     this.ttsHelpRemaining = 6;
     this.wordAttempts = 0;
     this.usedTTSOnCurrentWord = false;
+    this.isStoryCompleted = false;
 
     this.updateTTSHelpUI();
     document.getElementById('setupSection').classList.add('hidden');
@@ -690,7 +692,7 @@ class LeggoFacileApp {
   }
 
   onSpeechResult(transcript) {
-    if (this.isAdvancing) return;
+    if (this.isAdvancing || this.isStoryCompleted) return;
     if (this.words.length === 0 || this.currentIndex >= this.words.length) return;
 
     // Guard against residual speech events fired immediately after word transition (within 400ms)
@@ -776,6 +778,13 @@ class LeggoFacileApp {
         this.renderCurrentStage();
       }, 650);
     } else {
+      // Story completed! Turn off speech auto-listening immediately so celebratory talking won't trigger errors
+      this.isStoryCompleted = true;
+      if (this.speech && this.speech.isListening) {
+        this.speech.stop();
+      }
+      this.stopPacer();
+
       if (typeof confetti === 'function') {
         confetti({ particleCount: 180, spread: 100, origin: { y: 0.5 } });
       }

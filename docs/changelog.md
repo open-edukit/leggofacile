@@ -10,6 +10,9 @@
   - Introdotto abort immediato del buffer audio (`recognition.abort()`) su `resetBuffer()` al cambio parola.
   - Svuotamento e azzeramento del transcript su conferma parola (`triggerSuccessAdvance`).
   - Aggiunta finestra temporale di guardia (400ms) all'inizio di ciascuna nuova parola per scartare transcript residui della parola precedente e calibrazione della transizione visiva a 650ms.
+- **Disattivazione Automatica Auto-Ascolto a Fine Storia**:
+  - Al completamento della lettura dell'intero brano, l'auto-ascolto vocale si spegne immediatamente (`speech.stop()`), impostando il flag `isStoryCompleted = true`.
+  - Neutralizzate le pernacchie/segnalazioni di errore involontarie durante la schermata riassuntiva dei trofei o mentre si parla e si festeggia a storia ultimata.
 - **Suite di Test**:
   - Aggiunti test unitari specifici per omofoni italiani e gestione 'h' muta in `test/speech.test.js`.
 
