@@ -86,10 +86,32 @@ test('verifyFullWordSpeech - Handles Italian homophones and silent-H (ho vs o, h
   assert.equal(verifyFullWordSpeech('hanno', 'anno').isMatch, true);
 });
 
+test('verifyFullWordSpeech - Handles elisions with apostrophes (e.g. l\'indomani, l\'albero, c\'era, un\'ora)', () => {
+  // Spoken as l'indomani or lindomani or separate tokens
+  assert.equal(verifyFullWordSpeech("l'indomani", "l'indomani").isMatch, true);
+  assert.equal(verifyFullWordSpeech("lindomani", "l'indomani").isMatch, true);
+  assert.equal(verifyFullWordSpeech("l indomani", "l'indomani").isMatch, true);
+  assert.equal(verifyFullWordSpeech("indomani", "l'indomani").isMatch, true);
+
+  // Spoken as l'albero or lalbero or albero
+  assert.equal(verifyFullWordSpeech("l'albero", "l'albero").isMatch, true);
+  assert.equal(verifyFullWordSpeech("lalbero", "l'albero").isMatch, true);
+  assert.equal(verifyFullWordSpeech("albero", "l'albero").isMatch, true);
+
+  // Spoken as c'era or cera
+  assert.equal(verifyFullWordSpeech("c'era", "c'era").isMatch, true);
+  assert.equal(verifyFullWordSpeech("cera", "c'era").isMatch, true);
+
+  // Spoken as un'ora or unora
+  assert.equal(verifyFullWordSpeech("un'ora", "un'ora").isMatch, true);
+  assert.equal(verifyFullWordSpeech("unora", "un'ora").isMatch, true);
+});
+
 test('verifyFullWordSpeech - Rejects completely wrong words', () => {
   const res = verifyFullWordSpeech('casa', 'gatto');
   assert.equal(res.isMatch, false);
   assert.equal(res.reason, 'wrong_word');
 });
+
 
 

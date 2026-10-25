@@ -79,6 +79,25 @@ test('parseStructuredText preserves all punctuation, spaces and newlines', () =>
   assert.equal(words[11].raw, 'Miao');
 });
 
+test('parseStructuredText preserves words with article/preposition prefixes and apostrophes (e.g. l\'indomani, un\'ora)', () => {
+  const input = "L'indomani andò all'albero. C'era un'amica e quest'anno d'oro.";
+  const { tokens, words } = parseStructuredText(input);
+
+  // String reconstruction must be 100% identical
+  const reconstructed = tokens.map(t => t.raw || t.text).join('');
+  assert.equal(reconstructed, input);
+
+  // Must not split l'indomani into 'l' and 'indomani'
+  assert.equal(words[0].raw, "L'indomani");
+  assert.equal(words[0].clean, "l'indomani");
+  assert.equal(words[1].raw, "andò");
+  assert.equal(words[2].raw, "all'albero");
+  assert.equal(words[3].raw, "C'era");
+  assert.equal(words[4].raw, "un'amica");
+  assert.equal(words[6].raw, "quest'anno");
+  assert.equal(words[7].raw, "d'oro");
+});
+
 test('Phoneme Spelling', () => {
   assert.equal(spellPhonemes('gatto'), 'G • A • T • T • O');
   assert.equal(spellPhonemes('sole'), 'S • O • L • E');

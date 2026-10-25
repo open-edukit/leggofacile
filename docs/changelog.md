@@ -1,5 +1,16 @@
 # 📝 Changelog LeggoFacile
 
+## [2.1.5] - 2026-10-25
+
+### Fixed
+- **Unificazione Parole con Elisione e Prefisso (`l'indomani`, `un'ora`, `c'era`, `d'oro`)**:
+  - Risolto lo split anomalo delle parole con elisione in lettere isolate (es. `"L"` + `"indomani"`): ora vengono riconosciute e mantenute come un'unica entità lessicale naturale (`"L'indomani"`).
+  - La sillabazione fonetica integrata segmenta fluidamente la parola intera (`l'in-do-ma-ni`, `l'al-be-ro`, `un'-o-ra`, `c'e-ra`) eliminando il blocco sulla singola consonante d'articolo `"L"`.
+  - La verifica vocale WebSpeech accetta con successo sia la pronuncia legata (`l'indomani`, `lindomani`), sia la pronuncia scandita (`l indomani`), sia la variante fonetica isolata (`indomani`).
+- **Suite di Test**:
+  - Aggiunti test di tokenizzazione per elisioni in `test/syllables.test.js`.
+  - Aggiunti test di riconoscimento vocale per parole con apostrofo in `test/speech.test.js`.
+
 ## [2.1.4] - 2026-10-12
 
 ### Fixed

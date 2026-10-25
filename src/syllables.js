@@ -180,8 +180,8 @@ export function parseStructuredText(rawText) {
 
   const tokens = [];
   const words = [];
-  // Tokenize words vs punctuation vs whitespace
-  const tokenRegex = /([a-zàèéìòùáéíóúA-ZÀÈÉÌÒÙÁÉÍÓÚ]+)|(\r\n|\r|\n)|(\s+)|([^a-zàèéìòùáéíóúA-ZÀÈÉÌÒÙÁÉÍÓÚ\s]+)/g;
+  // Tokenize words (including elisions with apostrophes: l'indomani, un'ora, c'era) vs punctuation vs whitespace
+  const tokenRegex = /([a-zàèéìòùáéíóúA-ZÀÈÉÌÒÙÁÉÍÓÚ]+(?:['’][a-zàèéìòùáéíóúA-ZÀÈÉÌÒÙÁÉÍÓÚ]+)*)|(\r\n|\r|\n)|(\s+)|([^a-zàèéìòùáéíóúA-ZÀÈÉÌÒÙÁÉÍÓÚ\s]+)/g;
   let match;
   let wordIdx = 0;
 
